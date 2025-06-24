@@ -72,47 +72,10 @@ const Hero: React.FC<HeroProps> = () => {
       animate="visible"
       variants={staggerContainer}
     >
-      {/* Enhanced glow effects */}
-      <motion.div 
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[800px] aspect-square"
-        animate={{
-          scale: [1, 1.2, 1],
-          opacity: [0.3, 0.5, 0.3],
-        }}
-        transition={{
-          duration: 8,
-          repeat: Infinity,
-          ease: "easeInOut",
-        }}
-      >
-        <motion.div 
-          className="absolute inset-0 bg-gradient-radial from-purple-600/20 via-purple-600/10 to-transparent rounded-full blur-3xl"
-          animate={{
-            rotate: [0, 360],
-          }}
-          transition={{
-            duration: 30,
-            repeat: Infinity,
-            ease: "linear",
-          }}
-        />
-        <motion.div 
-          className="absolute inset-0 bg-gradient-radial from-blue-600/20 via-blue-600/10 to-transparent rounded-full blur-3xl transform"
-          animate={{
-            rotate: [360, 0],
-          }}
-          transition={{
-            duration: 30,
-            repeat: Infinity,
-            ease: "linear",
-          }}
-        />
-      </motion.div>
-
       <div className="relative z-10 container mx-auto max-w-7xl">
         {/* Intro text */}
         <motion.div 
-          className="text-center mb-8 sm:mb-12"
+          className="text-center mb-4 sm:mb-8"
           variants={staggerContainer}
         >
           <motion.p 
@@ -143,7 +106,7 @@ const Hero: React.FC<HeroProps> = () => {
 
         {/* 3D Image with enhanced effects */}
         <motion.div 
-          className="flex justify-center items-center w-full mb-8 sm:mb-16 perspective-1000"
+          className="flex justify-center items-center w-full mb-2 sm:mb-2 perspective-1000"
           variants={fadeInUp}
           onMouseMove={handleMouseMove}
           onMouseEnter={() => setIsHovered(true)}

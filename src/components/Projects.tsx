@@ -1,5 +1,5 @@
-import React, { useRef } from 'react';
-import { motion } from 'framer-motion';
+import React, { useRef, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 // Add this CSS to your global styles if not present:
 // .scrollbar-hide::-webkit-scrollbar { display: none; }
@@ -56,6 +56,16 @@ const graphicImages = [
 const Card = React.forwardRef(({ label, aspect, isActive, onHover, mediaSrc, isVideo }: { label: string; aspect?: string; isActive: boolean; onHover?: () => void; mediaSrc?: string; isVideo?: boolean }, ref: React.Ref<HTMLDivElement>) => {
   const videoRef = React.useRef<HTMLVideoElement>(null);
   const [isPlaying, setIsPlaying] = React.useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // Handle custom fullscreen modal
+  const handleFullscreen = () => {
+    setIsModalOpen(true);
+    if (videoRef.current) {
+      videoRef.current.play();
+      setIsPlaying(true);
+    }
+  };
 
   const handlePlay = () => {
     if (videoRef.current) {
@@ -63,6 +73,7 @@ const Card = React.forwardRef(({ label, aspect, isActive, onHover, mediaSrc, isV
       setIsPlaying(true);
     }
   };
+  
   const handlePause = () => {
     if (videoRef.current) {
       videoRef.current.pause();
@@ -86,56 +97,106 @@ const Card = React.forwardRef(({ label, aspect, isActive, onHover, mediaSrc, isV
   const poster = mediaSrc && posterMap[mediaSrc] ? posterMap[mediaSrc] : '/images/Me.png';
 
   return (
-    <motion.div
-      ref={ref}
-      className={
-        `snap-center flex-shrink-0 ${aspect === '9/16' ? 'w-28 md:w-48 h-60 md:h-80' : 'w-40 md:w-60 h-60 md:h-80'} bg-white rounded-2xl shadow-md mx-1 md:mx-2 transition-all duration-300 cursor-pointer relative group overflow-hidden`
-      }
-      whileHover={{ scale: 1.07, boxShadow: '0 0 32px 8px #a78bfa', zIndex: 10 }}
-      transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-      onMouseEnter={isVideo ? handlePlay : onHover}
-      onMouseLeave={isVideo ? handlePause : undefined}
-      tabIndex={0}
-    >
-      {isVideo && mediaSrc ? (
-        <div className="relative w-full h-full">
-          <video
-            ref={videoRef}
-            src={mediaSrc}
-            poster={poster}
-            preload="metadata"
-            muted
-            playsInline
-            className="object-cover w-full h-full group-hover:opacity-80 transition duration-300 rounded-2xl"
-          />
-          {!isPlaying && (
-            <button
-              className="absolute inset-0 flex items-center justify-center bg-black/30 hover:bg-black/10 transition"
-              onClick={handlePlay}
-              tabIndex={-1}
-              aria-label="Play video"
-              type="button"
-            >
-              <svg width="48" height="48" viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="24" fill="#fff" fillOpacity="0.7"/><polygon points="20,16 36,24 20,32" fill="#a78bfa"/></svg>
-            </button>
+    <>
+      <motion.div
+        ref={ref}
+        className={
+          `snap-center flex-shrink-0 ${aspect === '9/16' ? 'w-28 md:w-48 h-60 md:h-80' : 'w-40 md:w-60 h-60 md:h-80'} bg-white rounded-md shadow-md mx-1 md:mx-2 transition-all duration-300 cursor-pointer relative group`
+        }
+        whileHover={{ scale: 1.07, zIndex: 10 }}
+        transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+        onMouseEnter={isVideo ? handlePlay : onHover}
+        onMouseLeave={isVideo ? handlePause : undefined}
+        tabIndex={0}
+      >
+        <div className="w-full h-full rounded-md overflow-hidden">
+          {isVideo && mediaSrc ? (
+            <div className="relative w-full h-full">
+              <video
+                ref={videoRef}
+                src={mediaSrc}
+                poster={poster}
+                preload="metadata"
+                muted
+                playsInline
+                className="object-cover w-full h-full transition duration-300 rounded-md"
+                onClick={handleFullscreen}
+              />
+              {!isPlaying && (
+                <button
+                  className="absolute inset-0 flex items-center justify-center bg-black/30 hover:bg-black/10 transition"
+                  onClick={handlePlay}
+                  tabIndex={-1}
+                  aria-label="Play video"
+                  type="button"
+                >
+                  <svg width="48" height="48" viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="24" fill="#fff" fillOpacity="0.7"/><polygon points="20,16 36,24 20,32" fill="#a78bfa"/></svg>
+                </button>
+              )}
+            </div>
+          ) : mediaSrc ? (
+            <img
+              src={mediaSrc}
+              alt={label}
+              loading="lazy"
+              className="object-cover w-full h-full transition duration-300 rounded-md"
+            />
+          ) : (
+            <img
+              src={aspect === '9/16' ? '/images/Customer.png' : '/images/Me.png'}
+              alt={label}
+              loading="lazy"
+              className="object-cover w-full h-full transition duration-300 rounded-md"
+            />
           )}
         </div>
-      ) : mediaSrc ? (
-        <img
-          src={mediaSrc}
-          alt={label}
-          loading="lazy"
-          className="object-cover w-full h-full group-hover:opacity-80 transition duration-300 rounded-2xl"
-        />
-      ) : (
-        <img
-          src={aspect === '9/16' ? '/images/Customer.png' : '/images/Me.png'}
-          alt={label}
-          loading="lazy"
-          className="object-cover w-full h-full group-hover:opacity-80 transition duration-300 rounded-2xl"
-        />
-      )}
-    </motion.div>
+      </motion.div>
+
+      {/* Fullscreen Modal */}
+      <AnimatePresence>
+        {isModalOpen && isVideo && mediaSrc && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center"
+            onClick={() => {
+              setIsModalOpen(false);
+              if (videoRef.current) {
+                videoRef.current.pause();
+                setIsPlaying(false);
+              }
+            }}
+          >
+            {/* Close button */}
+            <button
+              className="absolute top-4 right-4 text-white/80 hover:text-white z-50"
+              onClick={() => setIsModalOpen(false)}
+            >
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M18 6L6 18M6 6l12 12" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
+
+            {/* Video Container with 1080x1920 ratio */}
+            <div 
+              className="relative w-full h-full flex items-center justify-center"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="relative" style={{ width: 'min(1080px, 90vh * 0.5625)', height: 'min(1920px, 90vh)' }}>
+                <video
+                  src={mediaSrc}
+                  autoPlay
+                  controls
+                  className="w-full h-full object-contain rounded-lg"
+                  onClick={(e) => e.stopPropagation()}
+                />
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
   );
 });
 
@@ -188,7 +249,7 @@ function HorizontalCardScroller({ section }: { section: { title: string; key: st
   };
 
   return (
-    <div className="relative w-full px-2 md:px-0">
+    <div className="relative w-full">
       <button
         aria-label="Scroll left"
         className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white/80 hover:bg-purple-200 text-purple-700 rounded-full shadow p-2 transition disabled:opacity-40 hidden sm:block"

@@ -12,15 +12,11 @@ const CertificationCard = ({ title, year, platform }: { title: string; year: str
     }}
   >
     {/* Glow effect */}
-    <motion.div
-      className="absolute inset-0 bg-gradient-to-r from-purple-600/10 via-blue-600/10 to-purple-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-      animate={{
-        rotate: [0, 360],
-      }}
-      transition={{
-        duration: 10,
-        repeat: Infinity,
-        ease: "linear",
+    <div
+      className="absolute inset-0 -z-10 rounded-md"
+      style={{
+        background: 'radial-gradient(ellipse at 50% 50%, rgba(255,255,255,0.45) 0%, rgba(167,139,250,0.25) 50%, transparent 100%)',
+        filter: 'blur(28px)',
       }}
     />
     
