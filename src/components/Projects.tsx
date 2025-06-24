@@ -57,7 +57,7 @@ const Card = React.forwardRef(({ label, aspect, isActive, onHover, mediaSrc, isV
   <motion.div
     ref={ref}
     className={
-      `snap-center flex-shrink-0 ${aspect === '9/16' ? 'w-48 h-80' : 'w-60 h-80'} bg-white rounded-2xl shadow-md mx-2 transition-all duration-300 cursor-pointer relative group overflow-hidden`
+      `snap-center flex-shrink-0 ${aspect === '9/16' ? 'w-28 md:w-48 h-60 md:h-80' : 'w-40 md:w-60 h-60 md:h-80'} bg-white rounded-2xl shadow-md mx-1 md:mx-2 transition-all duration-300 cursor-pointer relative group overflow-hidden`
     }
     whileHover={{ scale: 1.07, boxShadow: '0 0 32px 8px #a78bfa', zIndex: 10 }}
     transition={{ type: 'spring', stiffness: 300, damping: 20 }}
@@ -118,10 +118,10 @@ function HorizontalCardScroller({ section }: { section: { title: string; key: st
   };
 
   return (
-    <div className="relative w-full">
+    <div className="relative w-full px-2 md:px-0">
       <button
         aria-label="Scroll left"
-        className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white/80 hover:bg-purple-200 text-purple-700 rounded-full shadow p-2 transition disabled:opacity-40"
+        className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white/80 hover:bg-purple-200 text-purple-700 rounded-full shadow p-2 transition disabled:opacity-40 hidden sm:block"
         style={{ marginLeft: '-24px' }}
         onClick={() => scrollByCard('left')}
       >
@@ -129,7 +129,7 @@ function HorizontalCardScroller({ section }: { section: { title: string; key: st
       </button>
       <div
         ref={containerRef}
-        className="flex items-center py-4 gap-4 overflow-x-auto scrollbar-hide snap-x snap-mandatory scroll-smooth hide-scrollbar"
+        className="flex items-center py-4 gap-2 md:gap-4 overflow-x-auto scrollbar-hide snap-x snap-mandatory scroll-smooth hide-scrollbar"
         style={{ scrollBehavior: 'smooth' }}
       >
         {mediaArr.map((src, i) => (
@@ -145,7 +145,7 @@ function HorizontalCardScroller({ section }: { section: { title: string; key: st
       </div>
       <button
         aria-label="Scroll right"
-        className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white/80 hover:bg-purple-200 text-purple-700 rounded-full shadow p-2 transition disabled:opacity-40"
+        className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white/80 hover:bg-purple-200 text-purple-700 rounded-full shadow p-2 transition disabled:opacity-40 hidden sm:block"
         style={{ marginRight: '-24px' }}
         onClick={() => scrollByCard('right')}
       >
@@ -156,14 +156,14 @@ function HorizontalCardScroller({ section }: { section: { title: string; key: st
 }
 
 const MyWork = () => (
-  <motion.section className="py-10 px-4 md:px-8 max-w-6xl mx-auto" initial="hidden" animate="visible">
-    <motion.h2 className="text-3xl font-bold mb-12 text-center relative text-white">
+  <motion.section className="py-6 md:py-10 px-2 md:px-4 max-w-6xl mx-auto" initial="hidden" animate="visible">
+    <motion.h2 className="text-2xl md:text-3xl font-bold mb-8 md:mb-12 text-center relative text-white">
       My Work
       <motion.span className="absolute inset-0 bg-purple-500/10 blur-xl -z-10" animate={{ opacity: [0.3, 0.6, 0.3], scale: [1, 1.2, 1] }} transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }} />
     </motion.h2>
     {workSections.map(section => (
-      <div key={section.key} className="mb-16">
-        <h3 className="text-2xl font-semibold mb-4 text-white">{section.title}</h3>
+      <div key={section.key} className="mb-10 md:mb-16">
+        <h3 className="text-lg md:text-2xl font-semibold mb-2 md:mb-4 text-white">{section.title}</h3>
         <HorizontalCardScroller section={section} />
       </div>
     ))}
