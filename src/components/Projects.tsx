@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef } from 'react';
 import { motion } from 'framer-motion';
 
 // Add this CSS to your global styles if not present:
@@ -11,7 +11,6 @@ const workSections = [
   { title: 'Graphic Designer', key: 'graphicdesigner' },
 ];
 
-const CARD_COUNT = 10;
 const CARD_WIDTH = 240; // px (w-60)
 const CARD_GAP = 16; // px (gap-4)
 
@@ -57,7 +56,9 @@ const graphicImages = [
 const Card = React.forwardRef(({ label, aspect, isActive, onHover, mediaSrc, isVideo }: { label: string; aspect?: string; isActive: boolean; onHover?: () => void; mediaSrc?: string; isVideo?: boolean }, ref: React.Ref<HTMLDivElement>) => (
   <motion.div
     ref={ref}
-    className={"snap-center flex-shrink-0 w-60 h-80 bg-white rounded-2xl shadow-md mx-2 transition-all duration-300 cursor-pointer relative group overflow-hidden"}
+    className={
+      `snap-center flex-shrink-0 ${aspect === '9/16' ? 'w-48 h-80' : 'w-60 h-80'} bg-white rounded-2xl shadow-md mx-2 transition-all duration-300 cursor-pointer relative group overflow-hidden`
+    }
     whileHover={{ scale: 1.07, boxShadow: '0 0 32px 8px #a78bfa', zIndex: 10 }}
     transition={{ type: 'spring', stiffness: 300, damping: 20 }}
     onMouseEnter={onHover}
@@ -91,7 +92,6 @@ const Card = React.forwardRef(({ label, aspect, isActive, onHover, mediaSrc, isV
 ));
 
 function HorizontalCardScroller({ section }: { section: { title: string; key: string } }) {
-  const [isPaused, setIsPaused] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   let mediaArr: string[] = [];
@@ -107,61 +107,50 @@ function HorizontalCardScroller({ section }: { section: { title: string; key: st
     isVideo = false;
   }
 
-  // Duplicate cards for seamless looping
-  const cards = [...mediaArr, ...mediaArr];
-  const totalCards = cards.length;
-  const totalWidth = totalCards * (CARD_WIDTH + CARD_GAP);
-
-  // Animation controls
-  const [animation, setAnimation] = useState<any>(null);
-
-  useEffect(() => {
-    if (!isPaused) {
-      setAnimation({
-        x: [0, -totalWidth / 2],
-        transition: {
-          x: {
-            repeat: Infinity,
-            repeatType: 'loop',
-            duration: 18,
-            ease: 'linear',
-          },
-        },
+  const scrollByCard = (dir: 'left' | 'right') => {
+    if (containerRef.current) {
+      const scrollAmount = CARD_WIDTH + CARD_GAP;
+      containerRef.current.scrollBy({
+        left: dir === 'left' ? -scrollAmount : scrollAmount,
+        behavior: 'smooth',
       });
-    } else {
-      setAnimation({ x: null });
     }
-  }, [isPaused, totalWidth]);
-
-  // Pause/resume handlers
-  const handlePause = () => setIsPaused(true);
-  const handleResume = () => setIsPaused(false);
+  };
 
   return (
-    <div
-      className="relative w-full overflow-hidden"
-      onMouseEnter={handlePause}
-      onMouseLeave={handleResume}
-      onTouchStart={handlePause}
-      onTouchEnd={handleResume}
-    >
-      <motion.div
-        ref={containerRef}
-        className="flex items-center py-4 gap-4"
-        style={{ width: totalWidth }}
-        animate={animation}
+    <div className="relative w-full">
+      <button
+        aria-label="Scroll left"
+        className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white/80 hover:bg-purple-200 text-purple-700 rounded-full shadow p-2 transition disabled:opacity-40"
+        style={{ marginLeft: '-24px' }}
+        onClick={() => scrollByCard('left')}
       >
-        {cards.map((src, i) => (
+        <svg width="24" height="24" fill="none" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+      </button>
+      <div
+        ref={containerRef}
+        className="flex items-center py-4 gap-4 overflow-x-auto scrollbar-hide snap-x snap-mandatory scroll-smooth hide-scrollbar"
+        style={{ scrollBehavior: 'smooth' }}
+      >
+        {mediaArr.map((src, i) => (
           <Card
             key={i}
-            label={`${section.title} ${(i % mediaArr.length) + 1}`}
+            label={`${section.title} ${i + 1}`}
             aspect={section.key === 'videography' ? '9/16' : undefined}
             isActive={false}
             mediaSrc={typeof src === 'string' ? src : undefined}
             isVideo={isVideo}
           />
         ))}
-      </motion.div>
+      </div>
+      <button
+        aria-label="Scroll right"
+        className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white/80 hover:bg-purple-200 text-purple-700 rounded-full shadow p-2 transition disabled:opacity-40"
+        style={{ marginRight: '-24px' }}
+        onClick={() => scrollByCard('right')}
+      >
+        <svg width="24" height="24" fill="none" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+      </button>
     </div>
   );
 }
@@ -182,3 +171,7 @@ const MyWork = () => (
 );
 
 export default MyWork; 
+
+// Add this to your global CSS if not present:
+// .hide-scrollbar::-webkit-scrollbar { display: none; }
+// .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; } 
