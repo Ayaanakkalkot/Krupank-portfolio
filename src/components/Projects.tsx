@@ -53,46 +53,116 @@ const graphicImages = [
   '/images/g10.png'
 ];
 
-const Card = React.forwardRef(({ label, aspect, isActive, onHover, mediaSrc, isVideo }: { label: string; aspect?: string; isActive: boolean; onHover?: () => void; mediaSrc?: string; isVideo?: boolean }, ref: React.Ref<HTMLDivElement>) => (
-  <motion.div
-    ref={ref}
-    className={
-      `snap-center flex-shrink-0 ${aspect === '9/16' ? 'w-28 md:w-48 h-60 md:h-80' : 'w-40 md:w-60 h-60 md:h-80'} bg-white rounded-2xl shadow-md mx-1 md:mx-2 transition-all duration-300 cursor-pointer relative group overflow-hidden`
+const Card = React.forwardRef(({ label, aspect, isActive, onHover, mediaSrc, isVideo }: { label: string; aspect?: string; isActive: boolean; onHover?: () => void; mediaSrc?: string; isVideo?: boolean }, ref: React.Ref<HTMLDivElement>) => {
+  const videoRef = React.useRef<HTMLVideoElement>(null);
+  const [isPlaying, setIsPlaying] = React.useState(false);
+
+  const handlePlay = () => {
+    if (videoRef.current) {
+      videoRef.current.play();
+      setIsPlaying(true);
     }
-    whileHover={{ scale: 1.07, boxShadow: '0 0 32px 8px #a78bfa', zIndex: 10 }}
-    transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-    onMouseEnter={onHover}
-    tabIndex={0}
-  >
-    {isVideo && mediaSrc ? (
-      <video
-        src={mediaSrc}
-        autoPlay
-        loop
-        muted
-        playsInline
-        className="object-cover w-full h-full group-hover:opacity-80 transition duration-300 rounded-2xl"
-      />
-    ) : mediaSrc ? (
-      <img
-        src={mediaSrc}
-        alt={label}
-        loading="lazy"
-        className="object-cover w-full h-full group-hover:opacity-80 transition duration-300 rounded-2xl"
-      />
-    ) : (
-      <img
-        src={aspect === '9/16' ? '/images/Customer.png' : '/images/Me.png'}
-        alt={label}
-        loading="lazy"
-        className="object-cover w-full h-full group-hover:opacity-80 transition duration-300 rounded-2xl"
-      />
-    )}
-  </motion.div>
-));
+  };
+  const handlePause = () => {
+    if (videoRef.current) {
+      videoRef.current.pause();
+      setIsPlaying(false);
+    }
+  };
+
+  // Map video to poster image (fallback to a default if not found)
+  const posterMap: Record<string, string> = {
+    '/videos/Fianl Vr.mp4': '/images/p1.png',
+    '/videos/FINAL BARWARE 9_16.mp4': '/images/p2.png',
+    '/videos/9_16 Rakhi Video.mp4': '/images/p3.png',
+    '/videos/CHRIST 9_161 (1).mp4': '/images/p4.png',
+    '/videos/TPP TREE 9-16.mp4': '/images/p5.png',
+    '/videos/VID-20250624-WA0001.mp4': '/images/p6.png',
+    '/videos/VID-20250624-WA0002.mp4': '/images/p7.png',
+    '/videos/VID-20250624-WA0003.mp4': '/images/p8.png',
+    '/videos/VID-20250624-WA0004.mp4': '/images/p9.png',
+    '/videos/VID-20250624-WA0007.mp4': '/images/p10.png',
+  };
+  const poster = mediaSrc && posterMap[mediaSrc] ? posterMap[mediaSrc] : '/images/Me.png';
+
+  return (
+    <motion.div
+      ref={ref}
+      className={
+        `snap-center flex-shrink-0 ${aspect === '9/16' ? 'w-28 md:w-48 h-60 md:h-80' : 'w-40 md:w-60 h-60 md:h-80'} bg-white rounded-2xl shadow-md mx-1 md:mx-2 transition-all duration-300 cursor-pointer relative group overflow-hidden`
+      }
+      whileHover={{ scale: 1.07, boxShadow: '0 0 32px 8px #a78bfa', zIndex: 10 }}
+      transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+      onMouseEnter={isVideo ? handlePlay : onHover}
+      onMouseLeave={isVideo ? handlePause : undefined}
+      tabIndex={0}
+    >
+      {isVideo && mediaSrc ? (
+        <div className="relative w-full h-full">
+          <video
+            ref={videoRef}
+            src={mediaSrc}
+            poster={poster}
+            preload="metadata"
+            muted
+            playsInline
+            className="object-cover w-full h-full group-hover:opacity-80 transition duration-300 rounded-2xl"
+          />
+          {!isPlaying && (
+            <button
+              className="absolute inset-0 flex items-center justify-center bg-black/30 hover:bg-black/10 transition"
+              onClick={handlePlay}
+              tabIndex={-1}
+              aria-label="Play video"
+              type="button"
+            >
+              <svg width="48" height="48" viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="24" fill="#fff" fillOpacity="0.7"/><polygon points="20,16 36,24 20,32" fill="#a78bfa"/></svg>
+            </button>
+          )}
+        </div>
+      ) : mediaSrc ? (
+        <img
+          src={mediaSrc}
+          alt={label}
+          loading="lazy"
+          className="object-cover w-full h-full group-hover:opacity-80 transition duration-300 rounded-2xl"
+        />
+      ) : (
+        <img
+          src={aspect === '9/16' ? '/images/Customer.png' : '/images/Me.png'}
+          alt={label}
+          loading="lazy"
+          className="object-cover w-full h-full group-hover:opacity-80 transition duration-300 rounded-2xl"
+        />
+      )}
+    </motion.div>
+  );
+});
 
 function HorizontalCardScroller({ section }: { section: { title: string; key: string } }) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const [scroll, setScroll] = React.useState({ left: 0, width: 0, scrollWidth: 0 });
+
+  React.useEffect(() => {
+    const handleScroll = () => {
+      if (containerRef.current) {
+        setScroll({
+          left: containerRef.current.scrollLeft,
+          width: containerRef.current.clientWidth,
+          scrollWidth: containerRef.current.scrollWidth,
+        });
+      }
+    };
+    const ref = containerRef.current;
+    if (ref) {
+      ref.addEventListener('scroll', handleScroll);
+      // Set initial
+      setScroll({ left: ref.scrollLeft, width: ref.clientWidth, scrollWidth: ref.scrollWidth });
+    }
+    return () => {
+      if (ref) ref.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
 
   let mediaArr: string[] = [];
   let isVideo = false;
@@ -142,6 +212,20 @@ function HorizontalCardScroller({ section }: { section: { title: string; key: st
             isVideo={isVideo}
           />
         ))}
+      </div>
+      {/* Scroll indicator bar - only on mobile/tablet */}
+      <div className="relative w-full h-2 mt-2 flex items-center justify-center block md:hidden">
+        <div className="w-5/6 h-0.5 bg-white/20 rounded-full overflow-hidden relative">
+          {/* Small thumb that moves based on scroll position */}
+          <div
+            className="absolute top-0 h-2 w-1/5 rounded-full bg-gradient-to-r from-purple-400/80 to-blue-400/80 shadow-md transition-all duration-300"
+            style={{
+              left: scroll.width && scroll.scrollWidth
+                ? `calc(${(scroll.left / (scroll.scrollWidth - scroll.width)) * 80}% )`
+                : '0%',
+            }}
+          />
+        </div>
       </div>
       <button
         aria-label="Scroll right"
