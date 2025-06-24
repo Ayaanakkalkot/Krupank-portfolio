@@ -5,6 +5,7 @@ import Projects from "../components/Projects";
 import Contact from "../components/Contact";
 import Navbar from "../components/Navbar";
 import MyWork from "../components/Projects";
+import SkillsAndTools from "../components/SkillsAndTools";
 
 export default function Home() {
   return (
@@ -21,6 +22,10 @@ export default function Home() {
 
         <section id="mywork" className="min-h-screen">
           <MyWork />
+        </section>
+
+        <section id="skills-tools" className="min-h-screen">
+          <SkillsAndTools />
         </section>
 
         <section id="contact" className="min-h-screen">

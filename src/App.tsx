@@ -6,6 +6,7 @@ import Experience from './components/Experience';
 import MyWork from './components/Projects';
 import Contact from './components/Contact';
 import FloatingElements from './components/FloatingElements';
+import SkillsAndTools from './components/SkillsAndTools';
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
             <Hero />
             <Experience />
             <MyWork />
+            <SkillsAndTools />
             <Contact />
           </main>
         </div>
